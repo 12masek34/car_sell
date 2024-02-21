@@ -1,0 +1,7 @@
+* sell
+
+
+** deployment
+#+BEGIN_SRC bash
+  docker-compose up --build
+#+END_SRC
