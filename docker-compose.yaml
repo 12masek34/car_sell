@@ -17,8 +17,6 @@ services:
   db_sell:
     image: postgres:12-alpine
     restart: on-failure
-    ports:
-      - "5433:5432"
     env_file:
       - .env
     volumes:
