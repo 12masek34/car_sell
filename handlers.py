@@ -53,7 +53,7 @@ async def final(message: types.Message, db: Db, bot: Bot):
     await bot.send_message(GROUP_ID, result)
 
     await message.answer(
-        f"Переводи деньги на {CARD_NUMBER} и я размещу твое объявление.",
+        f"Переводи 1000р по номеру карты {CARD_NUMBER} и я размещу твое объявление.",
         reply_markup=types.ReplyKeyboardRemove(),
     )
 
