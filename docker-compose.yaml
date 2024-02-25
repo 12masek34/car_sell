@@ -13,6 +13,8 @@ services:
       - .env
     volumes:
       - ./.:/app
+    networks:
+      - sell
 
   db_sell:
     image: postgres:12-alpine
@@ -21,6 +23,13 @@ services:
       - .env
     volumes:
       - postgresql_volume:/var/lib/postgresql/data
+    networks:
+      - sell
 
 volumes:
   postgresql_volume:
+
+networks:
+  sell:
+    external:
+      name: sell
