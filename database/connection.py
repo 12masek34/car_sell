@@ -69,34 +69,72 @@ class Db:
                 await con.execute(queries.insert_field.format(field="city"), user_id, city)
         config.log.info(f" Добавлен город user_id={user_id} город={city}")
 
-    # async def get_documents(self, user_id: int) -> tuple[set, set]:
-    #     pics = set()
-    #     docs = set()
-    #     async with self.pool.acquire() as con:
-    #         async with con.transaction():
-    #             pics_and_docs = await con.fetch(queries.select_documents, user_id)
+    async def add_contact(self, user_id: int, contact: str | None) -> None:
+        async with self.pool.acquire() as con:
+            async with con.transaction():
+                await con.execute(queries.insert_field.format(field="contacts"), user_id, contact)
+        config.log.info(f" Добавлены контактеные данные user_id={user_id} контакты={contact}")
 
-    #             if pics_and_docs:
-    #                 pics.update(pics_and_docs[0][0])
-    #                 docs.update(pics_and_docs[0][1])
+    async def add_price(self, user_id: int, price: str | None) -> None:
+        async with self.pool.acquire() as con:
+            async with con.transaction():
+                await con.execute(queries.insert_field.format(field="price"), user_id, price)
+        config.log.info(f" Добавлена цена user_id={user_id} цена={price}")
 
-    #                 if None in pics:
-    #                     pics.remove(None)
+    async def add_description(self, user_id: int, description: str | None) -> None:
+        async with self.pool.acquire() as con:
+            async with con.transaction():
+                await con.execute(queries.insert_field.format(field="description"), user_id, description)
+        config.log.info(f" Добавлено описание user_id={user_id} описание={description}")
 
-    #                 if None in docs:
-    #                     docs.remove(None)
+    async def add_document(
+        self,
+        user_id: int,
+        document_id: str | None,
+        photo_id: str | None,
+        video_id: str | None,
+    ) -> None:
+        async with self.pool.acquire() as con:
+            async with con.transaction():
+                await con.execute(queries.insert_document, user_id, document_id, photo_id, video_id)
+        config.log.info(
+            f" Добавлен документ user_id={user_id} document_id={document_id} photo_id={photo_id} video_id={video_id}"
+        )
 
-    #     config.log.info(f" Для пользователя user_id={user_id} получено {len(docs)} документов и {len(pics)} фото")
+    async def get_documents(self, user_id: int) -> tuple[set, set, set]:
+        pics = set()
+        docs = set()
+        videos = set()
+        async with self.pool.acquire() as con:
+            async with con.transaction():
+                pics_docs_and_videos = await con.fetch(queries.select_documents, user_id)
 
-    #     return pics, docs
+                if pics_docs_and_videos:
+                    pics.update(pics_docs_and_videos[0][0])
+                    docs.update(pics_docs_and_videos[0][1])
+                    videos.update(pics_docs_and_videos[0][2])
 
-    # async def get_summary(self, user_id: int):
-    #     async with self.pool.acquire() as con:
-    #         async with con.transaction():
-    #             summary = await con.fetchrow(queries.select_summary, user_id)
-    #             config.log.info(f" Для пользователя user_id={user_id} получено {summary}")
+                    if None in pics:
+                        pics.remove(None)
 
-    #             return summary
+                    if None in docs:
+                        docs.remove(None)
+
+                    if None in videos:
+                        videos.remove(None)
+
+        config.log.info(f" Для пользователя user_id={user_id} получено {len(docs)} документов, "
+                        f"{len(videos)} видео и {len(pics)} фото")
+
+        return pics, docs, videos
+
+    async def get_summary(self, user_id: int):
+        async with self.pool.acquire() as con:
+            async with con.transaction():
+                summary = await con.fetchrow(queries.select_summary, user_id)
+                config.log.info(f" Для пользователя user_id={user_id} получено {summary}")
+
+                return summary
 
 
 async def init_db() -> Db:

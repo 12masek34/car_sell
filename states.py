@@ -14,3 +14,5 @@ class CarState(StatesGroup):
     city = State()
     contacts = State()
     price = State()
+    description = State()
+    files = State()

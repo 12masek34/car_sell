@@ -1,75 +1,71 @@
-# from aiogram.enums.parse_mode import (
-#     ParseMode,
-# )
-# from aiogram.types import (
-#     BufferedInputFile,
-#     InputMediaDocument,
-#     InputMediaPhoto,
-#     KeyboardButton,
-#     ReplyKeyboardMarkup,
-# )
-# from asyncpg import (
-#     Record,
-# )
-
-# from config import (
-#     pictures_dir,
-# )
+from aiogram.enums import (
+    ParseMode,
+)
+from aiogram.types import (
+    InputMediaDocument,
+    InputMediaPhoto,
+    InputMediaVideo,
+    KeyboardButton,
+    ReplyKeyboardMarkup,
+)
+from asyncpg import (
+    Record,
+)
 
 
-# def get_keyboard(*args) -> ReplyKeyboardMarkup:
-#     buttons = [KeyboardButton(text=text) for text in args]
+def get_keyboard(*args) -> ReplyKeyboardMarkup:
+    buttons = [KeyboardButton(text=text) for text in args]
 
-#     return ReplyKeyboardMarkup(keyboard=[buttons], resize_keyboard=True)
-
-
-# def get_pictures(file_name: str) -> BufferedInputFile:
-#     with open(pictures_dir / file_name, "rb") as f:
-#         photo_front = f.read()
-
-#     return BufferedInputFile(photo_front, file_name)
+    return ReplyKeyboardMarkup(keyboard=[buttons], resize_keyboard=True)
 
 
-# def get_summary(pics: set, docs: set, summary: Record) -> list:
-#     restriction = "<b>есть</b>" if summary["restriction"] else "нет"
-#     keys = summary["number_of_keys"]
-#     tire = summary["tire"]
-#     drive_type = summary["drive_type"]
-#     user_login = summary["user_login"]
-#     user_name = summary["user_name"]
+def get_summary(pics: set, docs: set, videos: set, summary: Record) -> tuple[list, str]:
+    user_login = summary["user_login"]
+    user_login = f"с ником @{user_login}" if user_login else "ник пользователя отсутствует"
+    user_name = summary["user_name"]
+    mark = summary["mark"]
+    model = summary["model"]
+    year = summary["year"]
+    engine_volume = summary["engine_volume"]
+    power = summary["power"]
+    transmission = summary["transmission"]
+    city = summary["city"]
+    contacts = summary["contacts"]
+    price = summary["price"]
+    description = summary["description"]
 
-#     caption = (
-#         f"Принимайте лялю от {user_name} @{user_login}!\n\nОграничения - {restriction}\n"
-#         f"Ключей - {keys}\nШины - {tire}\n Привод - {drive_type}\n"
-#     )
+    caption = (
+        f"Пользователь по имени {user_name} {user_login} хочет разместить лялю!\n\n"
+        f"Марка: {mark}\n"
+        f"Модель: {model}\n"
+        f"год выпуска: {year}\n"
+        f"мотор/объем: {engine_volume}\n"
+        f"мощность: {power}\n"
+        f"трансмиссия: {transmission}\n"
+        f"город: {city}\n"
+        f"контакты: {contacts}\n"
+        f"цена: {price}\n"
+        f"описание:\n{description}\n"
+    )
+    files = []
 
-#     files = []
-#     if pics:
-#         first = pics.pop()
-#     elif docs:
-#         first = docs.pop()
-#     else:
-#         first = None
+    files.extend([InputMediaPhoto(media=pic) for pic in pics])
+    files.extend([InputMediaDocument(media=doc) for doc in docs])
+    files.extend([InputMediaVideo(media=video) for video in videos])
 
-#     if first:
-#         first = InputMediaPhoto(media=first, caption=caption, parse_mode=ParseMode.HTML)
-#         files.append(first)
-#         files.extend([InputMediaPhoto(media=pic) for pic in pics])
-#         files.extend([InputMediaDocument(media=doc) for doc in docs])
+    if files:
+        files = chunk_list(files, 9)
+    else:
+        files = [files]
 
-#     if files:
-#         files = chunk_list(files, 9)
-#     else:
-#         files = [files]
+    files.reverse()
 
-#     files.reverse()
-
-#     return files
+    return files, caption
 
 
-# def chunk_list(input_list: list, chunk_size: int) -> list:
-#     chunked_list = []
-#     for i in range(0, len(input_list), chunk_size):
-#         chunked_list.append(input_list[i:i + chunk_size])
+def chunk_list(input_list: list, chunk_size: int) -> list:
+    chunked_list = []
+    for i in range(0, len(input_list), chunk_size):
+        chunked_list.append(input_list[i:i + chunk_size])
 
-#     return chunked_list
+    return chunked_list

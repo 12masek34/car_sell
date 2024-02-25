@@ -12,10 +12,11 @@ create_cars = """
         transmission TEXT,
         city TEXT,
         contacts TEXT,
-        price INTEGER,
+        price TEXT,
         description TEXT,
         photo_ids TEXT[],
-        document_ids TEXT[]
+        document_ids TEXT[],
+        video_ids TEXT[]
     );
 """
 
@@ -28,39 +29,33 @@ insert_field = """
     WHERE id = (SELECT id FROM cars WHERE user_id = $1 ORDER BY id DESC LIMIT 1)
 """
 
-# insert_model = """
-#     UPDATE cars SET model = $2
-#     WHERE id = (SELECT id FROM cars WHERE user_id = $1 ORDER BY id DESC LIMIT 1)
-# """
+insert_document = """
+    UPDATE cars
+    SET document_ids = array_append(document_ids, $2),
+    photo_ids = array_append(photo_ids, $3),
+    video_ids = array_append(video_ids, $4)
+    WHERE id = (SELECT id FROM cars WHERE user_id = $1 ORDER BY id DESC LIMIT 1)
+"""
 
-# insert_year = """
-#     UPDATE cars SET year = $2
-#     WHERE id = (SELECT id FROM cars WHERE user_id = $1 ORDER BY id DESC LIMIT 1)
-# """
+select_documents = """
+    SELECT photo_ids, document_ids, video_ids FROM cars
+    WHERE id = (SELECT id FROM cars WHERE user_id = $1 ORDER BY id DESC LIMIT 1)
+"""
 
-# insert_engine_volume = """
-#     UPDATE cars SET engine_volume = $2
-#     WHERE id = (SELECT id FROM cars WHERE user_id = $1 ORDER BY id DESC LIMIT 1)
-# """
-# insert_engine_power = """
-#     UPDATE cars SET engine_power = $2
-#     WHERE id = (SELECT id FROM cars WHERE user_id = $1 ORDER BY id DESC LIMIT 1)
-# """
-
-
-# insert_document = """
-#     UPDATE cars
-#     SET document_ids = array_append(document_ids, $2),
-#     photo_ids = array_append(photo_ids, $3)
-#     WHERE id = (SELECT id FROM cars WHERE user_id = $1 ORDER BY id DESC LIMIT 1)
-# """
-
-# select_documents = """
-#     SELECT photo_ids, document_ids FROM cars
-#     WHERE id = (SELECT id FROM cars WHERE user_id = $1 ORDER BY id DESC LIMIT 1)
-# """
-
-# select_summary = """
-#     SELECT restriction, number_of_keys, tire, drive_type, user_login, user_name FROM cars
-#     WHERE id = (SELECT id FROM cars WHERE user_id = $1 ORDER BY id DESC LIMIT 1)
-# """
+select_summary = """
+    SELECT
+        user_login,
+        user_name,
+        mark,
+        model,
+        year,
+        engine_volume,
+        power,
+        transmission,
+        city,
+        contacts,
+        price,
+        description
+FROM cars
+    WHERE id = (SELECT id FROM cars WHERE user_id = $1 ORDER BY id DESC LIMIT 1)
+"""
