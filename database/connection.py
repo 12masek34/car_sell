@@ -12,10 +12,11 @@ class Db:
 
     async def init_pool(self):
         self.pool = await asyncpg.create_pool(
-                database=config.DATABASE,
-                user=config.USER,
-                host=config.HOST,
-                password=config.PASSWORD,
+            database=config.DATABASE,
+            user=config.USER,
+            host=config.HOST,
+            port=config.PORT,
+            password=config.PASSWORD,
         )
         config.log.info(" Есть коннект к базе")
 
